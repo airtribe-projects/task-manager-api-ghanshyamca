@@ -1,8 +1,7 @@
 const express = require('express');
-const tasks = require('./task')
 const app = express();
 const port = 3000;
-const {logger} = require('./middlewares/loggerMiddleware');
+const { logger } = require('./middlewares/loggerMiddleware');
 const tasksRoute = require('./routes/tasksRoutes'); 
 
 app.use(express.json());
@@ -13,7 +12,7 @@ app.use("/tasks", tasksRoute);
 
 // Health check endpoint
 app.get('/ping', (req, res) => { 
-    res.send("Pong");
+    res.status(200).send("Pong");
 })
 
 app.listen(port, (err) => {

@@ -2,6 +2,8 @@ const tasks = require('../models/tasksModel');
 const priorityEnum = require('../constants/priority');
 const { PRIORITY_VALUES } = require('../middlewares/validationMiddleware')
 
+let nextId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
 const getAllTasks = (req, res) => {
     let result = [...tasks];
 
@@ -39,7 +41,7 @@ const getATaskByPriority = (req, res) => {
         error: `Priority must be one of: ${PRIORITY_VALUES.join(', ')}`
         });
     }
-    const task = tasks.find(t => t.priority == priority);
+    const task = tasks.filter(t => t.priority == priority);
     if (!task) {
         return res.status(404).json({ error: 'Task not found' });
     }
@@ -48,7 +50,7 @@ const getATaskByPriority = (req, res) => {
 
 const createATask = (req, res) => {
     const { title, description, completed, priority = priorityEnum.LOW } = req.body;
-    const taskData = { id: tasks.length+1, title, description, completed, priority, createdAt: new Date().toISOString() };
+    const taskData = { id: nextId++, title, description, completed, priority, createdAt: new Date().toISOString() };
     tasks.push(taskData)
     res.status(201).send(taskData)
 };
@@ -61,13 +63,13 @@ const deleteATask = (req,res) => {
         return res.status(404).json({ error: 'Task not found' });
     }
     tasks.splice(taskIndex, 1);
-    res.send(`${taskId} deleted successfully`)
+    res.send({message: `${taskId} deleted successfully`})
 };
 
 const updateATask = (req,res) => {
     const taskId = req.params.id
     
-    const taskIndex = tasks.findIndex((e) => e.id == taskId)
+    const taskIndex = tasks.findIndex((e) => e.id === parseInt(taskId))
     const { title, description, completed, priority } = req.body;
     if (taskIndex === -1) {
         return res.status(404).json({ error: 'Task not found' });
